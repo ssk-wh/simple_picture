@@ -47,6 +47,7 @@ private:
     QPointF m_offset;
     QPointF m_lastMousePos;
     bool m_dragging = false;
+    bool m_fittedToWindow = true;  // Track whether we're in fit-to-window mode
     QColor m_backgroundColor{30, 30, 30};
 };
 
