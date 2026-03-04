@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_AUTOMOC ON)
 
 # Qt 5.15.2
-find_package(Qt5 5.15 REQUIRED COMPONENTS Core Gui Widgets Concurrent)
+find_package(Qt5 5.15 REQUIRED COMPONENTS Core Gui Widgets Concurrent Test)
 
 # 主程序源文件
 set(CORE_SOURCES
@@ -84,6 +84,7 @@ if(BUILD_TESTS)
         Qt5::Gui
         Qt5::Widgets
         Qt5::Concurrent
+        Qt5::Test
         GTest::gtest
     )
 

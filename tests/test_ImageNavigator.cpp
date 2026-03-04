@@ -184,5 +184,5 @@ TEST_F(ImageNavigatorTest, CurrentFileChanged)
 
     // goPrevious should also emit the signal
     m_navigator->goPrevious();
-    EXPECT_EQ(spy.count(), 1);
+    EXPECT_EQ(spy.count(), 2);
 }
