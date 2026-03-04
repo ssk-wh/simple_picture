@@ -1,0 +1,66 @@
+# 构建产物
+build/
+out/
+dist/
+bin/
+release/
+Debug/
+Release/
+x64/
+x86/
+*.obj
+*.pdb
+*.lib
+*.dll
+*.exe
+*.ilk
+*.exp
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+
+# 依赖目录
+node_modules/
+vendor/
+third_party/
+3rdparty/
+
+# IDE/工具
+.vs/
+.idea/
+.vscode/
+*.user
+*.suo
+*.ncb
+*.sdf
+*.opensdf
+
+# 版本控制
+.git/
+
+# 缓存/临时
+__pycache__/
+*.pyc
+.cache/
+tmp/
+temp/
+
+# 大型二进制
+*.zip
+*.7z
+*.rar
+*.tar.gz
+*.iso
+*.msi
+*.png
+*.jpg
+*.bmp
+*.gif
+*.mp4
+*.mp3
+*.wav
+
+# 日志
+*.log
+logs/

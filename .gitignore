@@ -1,0 +1,42 @@
+# 构建产物
+build/
+out/
+dist/
+bin/
+release/
+Debug/
+Release/
+x64/
+x86/
+*.obj
+*.pdb
+*.lib
+*.dll
+*.exe
+*.ilk
+*.exp
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+
+# IDE/工具
+.vs/
+.idea/
+.vscode/
+*.user
+*.suo
+*.ncb
+*.sdf
+*.opensdf
+
+# 缓存/临时
+__pycache__/
+*.pyc
+.cache/
+tmp/
+temp/
+
+# 日志
+*.log
+logs/
