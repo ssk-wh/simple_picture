@@ -1,0 +1,91 @@
+cmake_minimum_required(VERSION 3.16)
+project(EasyPicture VERSION 1.0.0 LANGUAGES CXX)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_AUTOMOC ON)
+
+# Qt 5.15.2
+find_package(Qt5 5.15 REQUIRED COMPONENTS Core Gui Widgets Concurrent)
+
+# 主程序源文件
+set(CORE_SOURCES
+    src/core/ImageLoader.cpp
+    src/core/ImageCache.cpp
+    src/core/ImageNavigator.cpp
+)
+
+set(CORE_HEADERS
+    src/core/ImageLoader.h
+    src/core/ImageCache.h
+    src/core/ImageNavigator.h
+)
+
+set(UI_SOURCES
+    src/ui/ImageView.cpp
+    src/ui/MainWindow.cpp
+)
+
+set(UI_HEADERS
+    src/ui/ImageView.h
+    src/ui/MainWindow.h
+)
+
+add_executable(EasyPicture
+    src/main.cpp
+    ${CORE_SOURCES}
+    ${CORE_HEADERS}
+    ${UI_SOURCES}
+    ${UI_HEADERS}
+)
+
+target_include_directories(EasyPicture PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+)
+
+target_link_libraries(EasyPicture PRIVATE
+    Qt5::Core
+    Qt5::Gui
+    Qt5::Widgets
+    Qt5::Concurrent
+)
+
+# 单元测试
+option(BUILD_TESTS "Build unit tests" ON)
+if(BUILD_TESTS)
+    enable_testing()
+    find_package(GTest QUIET)
+    if(NOT GTest_FOUND)
+        include(FetchContent)
+        FetchContent_Declare(
+            googletest
+            GIT_REPOSITORY https://github.com/google/googletest.git
+            GIT_TAG v1.14.0
+        )
+        set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+        FetchContent_MakeAvailable(googletest)
+    endif()
+
+    add_executable(EasyPictureTests
+        tests/test_ImageLoader.cpp
+        tests/test_ImageCache.cpp
+        tests/test_ImageNavigator.cpp
+        ${CORE_SOURCES}
+        ${CORE_HEADERS}
+    )
+
+    target_include_directories(EasyPictureTests PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/src
+    )
+
+    target_link_libraries(EasyPictureTests PRIVATE
+        Qt5::Core
+        Qt5::Gui
+        Qt5::Widgets
+        Qt5::Concurrent
+        GTest::gtest_main
+    )
+
+    include(GoogleTest)
+    gtest_discover_tests(EasyPictureTests)
+endif()
