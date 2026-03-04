@@ -17,9 +17,9 @@ namespace easypic {
 
 MainWindow::MainWindow(QWidget* parent)
     : QWidget(parent)
-    , m_loader(std::make_unique<ImageLoader>(this))
+    , m_loader(std::make_unique<ImageLoader>())
     , m_cache(std::make_unique<ImageCache>())
-    , m_navigator(std::make_unique<ImageNavigator>(this))
+    , m_navigator(std::make_unique<ImageNavigator>())
 {
     setupUI();
     connectSignals();

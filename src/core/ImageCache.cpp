@@ -15,8 +15,7 @@ QPixmap ImageCache::get(const QString& filePath)
 {
     QMutexLocker locker(&m_mutex);
 
-    size_t key = hashKey(filePath);
-    auto it = m_cacheMap.find(key);
+    auto it = m_cacheMap.find(filePath);
     if (it == m_cacheMap.end()) {
         return QPixmap();
     }
@@ -30,8 +29,7 @@ void ImageCache::put(const QString& filePath, const QPixmap& pixmap)
 {
     QMutexLocker locker(&m_mutex);
 
-    size_t key = hashKey(filePath);
-    auto it = m_cacheMap.find(key);
+    auto it = m_cacheMap.find(filePath);
 
     if (it != m_cacheMap.end()) {
         // Update existing entry and move to front
@@ -47,13 +45,13 @@ void ImageCache::put(const QString& filePath, const QPixmap& pixmap)
 
     // Insert new entry at front
     m_cacheList.emplace_front(filePath, pixmap);
-    m_cacheMap[key] = m_cacheList.begin();
+    m_cacheMap[filePath] = m_cacheList.begin();
 }
 
 bool ImageCache::contains(const QString& filePath) const
 {
     QMutexLocker locker(&m_mutex);
-    return m_cacheMap.find(hashKey(filePath)) != m_cacheMap.end();
+    return m_cacheMap.find(filePath) != m_cacheMap.end();
 }
 
 void ImageCache::clear()
@@ -81,13 +79,8 @@ void ImageCache::evict()
         return;
     }
     auto& back = m_cacheList.back();
-    m_cacheMap.erase(hashKey(back.first));
+    m_cacheMap.erase(back.first);
     m_cacheList.pop_back();
-}
-
-size_t ImageCache::hashKey(const QString& filePath) const
-{
-    return qHash(filePath);
 }
 
 } // namespace easypic

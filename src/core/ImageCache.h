@@ -37,11 +37,14 @@ public:
     int capacity() const;
 
 private:
+    struct QStringHash {
+        size_t operator()(const QString& s) const { return qHash(s); }
+    };
+
     using CacheList = std::list<std::pair<QString, QPixmap>>;
-    using CacheMap = std::unordered_map<size_t, CacheList::iterator>;
+    using CacheMap = std::unordered_map<QString, CacheList::iterator, QStringHash>;
 
     void evict();
-    size_t hashKey(const QString& filePath) const;
 
     int m_capacity;
     CacheList m_cacheList;

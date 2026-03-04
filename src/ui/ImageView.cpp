@@ -84,6 +84,7 @@ void ImageView::resetToOriginalSize()
         return;
 
     m_scale = 1.0;
+    m_fittedToWindow = false;
 
     // Center the image at 1:1
     const double widgetW = width();
