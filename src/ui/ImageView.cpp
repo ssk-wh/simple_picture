@@ -221,7 +221,11 @@ void ImageView::keyPressEvent(QKeyEvent* event)
 void ImageView::resizeEvent(QResizeEvent* /*event*/)
 {
     if (!m_pixmap.isNull()) {
-        fitToWindow();
+        if (m_fittedToWindow) {
+            fitToWindow();
+        } else {
+            clampOffset();
+        }
         update();
     }
 }
@@ -236,27 +240,27 @@ void ImageView::clampOffset()
     const double widgetW = width();
     const double widgetH = height();
 
-    // Allow the image to be dragged so at least 20% remains visible
-    const double marginX = std::max(scaledW * 0.2, 50.0);
-    const double marginY = std::max(scaledH * 0.2, 50.0);
+    // Ensure at least some portion of the image stays visible
+    const double visibleMin = 50.0;
 
-    const double minX = widgetW - scaledW - marginX;  // Don't drag too far right
-    const double maxX = marginX;                       // Don't drag too far left
-    const double minY = widgetH - scaledH - marginY;
-    const double maxY = marginY;
-
-    // Only clamp if the image is larger than the viewport margin allows
-    if (scaledW + 2 * marginX > widgetW) {
-        m_offset.setX(std::clamp(m_offset.x(), std::min(minX, maxX), std::max(minX, maxX)));
-    } else {
-        // Center the image if it's smaller than the viewport
+    if (scaledW <= widgetW) {
+        // Image fits horizontally - center it
         m_offset.setX((widgetW - scaledW) / 2.0);
+    } else {
+        // Image wider than viewport - clamp so at least visibleMin pixels remain visible
+        const double minX = widgetW - scaledW - visibleMin;  // rightmost edge
+        const double maxX = visibleMin;                       // leftmost edge
+        m_offset.setX(std::clamp(m_offset.x(), minX, maxX));
     }
 
-    if (scaledH + 2 * marginY > widgetH) {
-        m_offset.setY(std::clamp(m_offset.y(), std::min(minY, maxY), std::max(minY, maxY)));
-    } else {
+    if (scaledH <= widgetH) {
+        // Image fits vertically - center it
         m_offset.setY((widgetH - scaledH) / 2.0);
+    } else {
+        // Image taller than viewport - clamp so at least visibleMin pixels remain visible
+        const double minY = widgetH - scaledH - visibleMin;
+        const double maxY = visibleMin;
+        m_offset.setY(std::clamp(m_offset.y(), minY, maxY));
     }
 }
 
