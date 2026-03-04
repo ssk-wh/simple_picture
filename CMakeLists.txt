@@ -67,6 +67,7 @@ if(BUILD_TESTS)
     endif()
 
     add_executable(EasyPictureTests
+        tests/test_main.cpp
         tests/test_ImageLoader.cpp
         tests/test_ImageCache.cpp
         tests/test_ImageNavigator.cpp
@@ -83,7 +84,7 @@ if(BUILD_TESTS)
         Qt5::Gui
         Qt5::Widgets
         Qt5::Concurrent
-        GTest::gtest_main
+        GTest::gtest
     )
 
     include(GoogleTest)
