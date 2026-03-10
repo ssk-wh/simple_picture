@@ -1,0 +1,125 @@
+name: Build & Package
+
+on:
+  push:
+    branches: [master, main]
+    tags: ['v*']
+  pull_request:
+    branches: [master, main]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    defaults:
+      run:
+        shell: msys2 {0}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup MSYS2
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          update: false
+          install: >-
+            mingw-w64-x86_64-gcc
+            mingw-w64-x86_64-cmake
+            mingw-w64-x86_64-ninja
+            mingw-w64-x86_64-qt5-base
+            mingw-w64-x86_64-qt5-svg
+            mingw-w64-x86_64-qt5-imageformats
+            mingw-w64-x86_64-nsis
+
+      - name: Build
+        run: |
+          set -euo pipefail
+          cmake -B build -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DBUILD_TESTS=OFF
+          cmake --build build --config Release
+
+      - name: Extract version
+        run: |
+          set -euo pipefail
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
+            VERSION="${GITHUB_REF#refs/tags/v}"
+          else
+            VERSION=$(grep -oP 'project\(EasyPicture VERSION \K[0-9.]+' CMakeLists.txt)
+          fi
+          if [[ -z "$VERSION" ]]; then
+            echo "::error::Failed to extract version"
+            exit 1
+          fi
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+          echo "Building version: $VERSION"
+
+      - name: Collect dist files
+        run: |
+          set -euo pipefail
+          rm -rf installer/dist
+          mkdir -p installer/dist/platforms installer/dist/imageformats
+
+          cp build/EasyPicture.exe installer/dist/
+
+          # Collect MinGW runtime DLLs
+          while IFS= read -r dll; do
+            cp "$dll" installer/dist/
+          done < <(ldd build/EasyPicture.exe | grep -i mingw64 | awk '{print $3}')
+
+          # Qt platform plugin
+          QT_PLUGIN_DIR=$(qmake -query QT_INSTALL_PLUGINS 2>/dev/null || echo "/mingw64/share/qt5/plugins")
+          cp "$QT_PLUGIN_DIR/platforms/qwindows.dll" installer/dist/platforms/
+
+          # Qt imageformat plugins
+          for fmt in qgif qico qjpeg qsvg qwebp qtiff; do
+            [ -f "$QT_PLUGIN_DIR/imageformats/${fmt}.dll" ] && cp "$QT_PLUGIN_DIR/imageformats/${fmt}.dll" installer/dist/imageformats/
+          done
+
+          echo "Collected $(find installer/dist -type f | wc -l) files"
+
+      - name: Build NSIS installer
+        run: |
+          set -euo pipefail
+          cd installer
+          sed -i "s/!define APP_VERSION \".*\"/!define APP_VERSION \"$VERSION\"/" EasyPicture.nsi
+          makensis EasyPicture.nsi
+
+      - name: Upload installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: EasyPicture-${{ env.VERSION }}-Setup
+          path: installer/EasyPicture-*-Setup.exe
+
+      - name: Create portable zip
+        run: |
+          cd installer
+          7z a -tzip "EasyPicture-${VERSION}-Portable.zip" ./dist/*
+
+      - name: Upload portable
+        uses: actions/upload-artifact@v4
+        with:
+          name: EasyPicture-${{ env.VERSION }}-Portable
+          path: installer/EasyPicture-*-Portable.zip
+
+  release:
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            artifacts/**/*-Setup.exe
+            artifacts/**/*-Portable.zip
+          generate_release_notes: true
