@@ -137,13 +137,15 @@ jobs:
           echo "Building version: $VERSION"
 
       - name: Build deb package
-        run: dpkg-buildpackage -us -uc -b
+        run: |
+          dpkg-buildpackage -us -uc -b
+          cp ../easypicture_*_amd64.deb .
 
       - name: Upload deb
         uses: actions/upload-artifact@v4
         with:
           name: easypicture_${{ env.VERSION }}-1_amd64.deb
-          path: ../easypicture_*_amd64.deb
+          path: easypicture_*_amd64.deb
 
   release:
     needs: [build-windows, build-linux]
