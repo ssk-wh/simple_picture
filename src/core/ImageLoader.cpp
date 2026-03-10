@@ -3,6 +3,8 @@
 #include <QFileInfo>
 #include <QFutureWatcher>
 #include <QImage>
+#include <QPainter>
+#include <QSvgRenderer>
 #include <QtConcurrent>
 
 namespace easypic {
@@ -22,9 +24,27 @@ ImageLoader::~ImageLoader()
     cancelAll();
 }
 
+static QImage loadImage(const QString& filePath)
+{
+    if (filePath.endsWith(QLatin1String(".svg"), Qt::CaseInsensitive)) {
+        QSvgRenderer renderer(filePath);
+        if (!renderer.isValid())
+            return QImage();
+        QSize size = renderer.defaultSize();
+        if (size.isEmpty())
+            size = QSize(1024, 1024);
+        QImage image(size, QImage::Format_ARGB32_Premultiplied);
+        image.fill(Qt::transparent);
+        QPainter painter(&image);
+        renderer.render(&painter);
+        return image;
+    }
+    return QImage(filePath);
+}
+
 QPixmap ImageLoader::loadSync(const QString& filePath)
 {
-    QImage image(filePath);
+    QImage image = loadImage(filePath);
     if (image.isNull()) {
         return QPixmap();
     }
@@ -51,7 +71,7 @@ void ImageLoader::loadAsync(const QString& filePath)
     });
 
     QFuture<QImage> future = QtConcurrent::run([filePath]() -> QImage {
-        return QImage(filePath);
+        return loadImage(filePath);
     });
 
     watcher->setFuture(future);
@@ -79,6 +99,7 @@ QStringList ImageLoader::supportedFilters()
         QStringLiteral("*.tiff"),
         QStringLiteral("*.tif"),
         QStringLiteral("*.ico"),
+        QStringLiteral("*.svg"),
     };
 }
 

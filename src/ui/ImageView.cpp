@@ -4,6 +4,7 @@
 #include <QMouseEvent>
 #include <QPainter>
 #include <QResizeEvent>
+#include <QSvgRenderer>
 #include <QWheelEvent>
 
 #include <algorithm>
@@ -22,7 +23,29 @@ ImageView::~ImageView() = default;
 
 void ImageView::setPixmap(const QPixmap& pixmap)
 {
+    m_svgRenderer.reset();
     m_pixmap = pixmap;
+    m_dragging = false;
+    m_fittedToWindow = true;
+    fitToWindow();
+    update();
+}
+
+void ImageView::setSvg(const QString& filePath)
+{
+    auto renderer = std::make_unique<QSvgRenderer>(filePath);
+    if (!renderer->isValid())
+        return;
+
+    m_svgRenderer = std::move(renderer);
+    m_svgDefaultSize = m_svgRenderer->defaultSize();
+    if (m_svgDefaultSize.isEmpty())
+        m_svgDefaultSize = QSizeF(1024, 1024);
+
+    // Set a dummy pixmap with the SVG's default size for scale/offset calculations
+    m_pixmap = QPixmap(m_svgDefaultSize.toSize());
+    m_pixmap.fill(Qt::transparent);
+
     m_dragging = false;
     m_fittedToWindow = true;
     fitToWindow();
@@ -121,7 +144,13 @@ void ImageView::paintEvent(QPaintEvent* /*event*/)
     const double scaledW = m_pixmap.width() * m_scale;
     const double scaledH = m_pixmap.height() * m_scale;
     const QRectF targetRect(m_offset.x(), m_offset.y(), scaledW, scaledH);
-    painter.drawPixmap(targetRect, m_pixmap, QRectF(m_pixmap.rect()));
+
+    if (m_svgRenderer) {
+        painter.setRenderHint(QPainter::Antialiasing);
+        m_svgRenderer->render(&painter, targetRect);
+    } else {
+        painter.drawPixmap(targetRect, m_pixmap, QRectF(m_pixmap.rect()));
+    }
 }
 
 void ImageView::wheelEvent(QWheelEvent* event)

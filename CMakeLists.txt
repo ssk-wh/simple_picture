@@ -4,9 +4,16 @@ project(EasyPicture VERSION 1.0.0 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
+
+# Generate version.h from template
+configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/version.h.in
+    ${CMAKE_CURRENT_BINARY_DIR}/version.h
+)
 
 # Qt 5.15.2
-find_package(Qt5 5.15 REQUIRED COMPONENTS Core Gui Widgets Concurrent Test)
+find_package(Qt5 5.15 REQUIRED COMPONENTS Core Gui Widgets Concurrent Svg Test)
 
 # 主程序源文件
 set(CORE_SOURCES
@@ -24,23 +31,28 @@ set(CORE_HEADERS
 set(UI_SOURCES
     src/ui/ImageView.cpp
     src/ui/MainWindow.cpp
+    src/ui/ChangelogDialog.cpp
 )
 
 set(UI_HEADERS
     src/ui/ImageView.h
     src/ui/MainWindow.h
+    src/ui/ChangelogDialog.h
 )
 
-add_executable(EasyPicture
+add_executable(EasyPicture WIN32
     src/main.cpp
     ${CORE_SOURCES}
     ${CORE_HEADERS}
     ${UI_SOURCES}
     ${UI_HEADERS}
+    resources.qrc
+    resources/app.rc
 )
 
 target_include_directories(EasyPicture PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src
+    ${CMAKE_CURRENT_BINARY_DIR}
 )
 
 target_link_libraries(EasyPicture PRIVATE
@@ -48,6 +60,7 @@ target_link_libraries(EasyPicture PRIVATE
     Qt5::Gui
     Qt5::Widgets
     Qt5::Concurrent
+    Qt5::Svg
 )
 
 # 单元测试
@@ -84,6 +97,7 @@ if(BUILD_TESTS)
         Qt5::Gui
         Qt5::Widgets
         Qt5::Concurrent
+        Qt5::Svg
         Qt5::Test
         GTest::gtest
     )

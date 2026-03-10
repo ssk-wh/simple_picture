@@ -3,6 +3,9 @@
 #include <QPixmap>
 #include <QPointF>
 #include <QWidget>
+#include <memory>
+
+class QSvgRenderer;
 
 namespace easypic {
 
@@ -18,6 +21,7 @@ public:
     ~ImageView() override;
 
     void setPixmap(const QPixmap& pixmap);
+    void setSvg(const QString& filePath);
     const QPixmap& pixmap() const;
 
     double scale() const;
@@ -43,6 +47,8 @@ private:
     void clampOffset();
 
     QPixmap m_pixmap;
+    std::unique_ptr<QSvgRenderer> m_svgRenderer;
+    QSizeF m_svgDefaultSize;
     double m_scale = 1.0;
     QPointF m_offset;
     QPointF m_lastMousePos;

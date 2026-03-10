@@ -4,9 +4,12 @@
 #include "../core/ImageLoader.h"
 #include "../core/ImageNavigator.h"
 
+#include "ChangelogDialog.h"
+
 #include <QDragEnterEvent>
 #include <QDropEvent>
 #include <QFileInfo>
+#include <QKeyEvent>
 #include <QMimeData>
 #include <QPainter>
 #include <QTimer>
@@ -63,6 +66,29 @@ void MainWindow::connectSignals()
             this, &MainWindow::onCurrentFileChanged);
 }
 
+static bool isSvgFile(const QString& path)
+{
+    return path.endsWith(QLatin1String(".svg"), Qt::CaseInsensitive);
+}
+
+void MainWindow::displayFile(const QString& filePath)
+{
+    if (isSvgFile(filePath)) {
+        m_imageView->setSvg(filePath);
+    } else {
+        QPixmap cached = m_cache->get(filePath);
+        if (!cached.isNull()) {
+            m_imageView->setPixmap(cached);
+            return;
+        }
+        QPixmap pix = m_loader->loadSync(filePath);
+        if (!pix.isNull()) {
+            m_cache->put(filePath, pix);
+            m_imageView->setPixmap(pix);
+        }
+    }
+}
+
 void MainWindow::openFile(const QString& filePath)
 {
     QFileInfo fi(filePath);
@@ -71,12 +97,7 @@ void MainWindow::openFile(const QString& filePath)
 
     const QString absPath = fi.absoluteFilePath();
 
-    // Synchronously load the first image for immediate display
-    QPixmap pix = m_loader->loadSync(absPath);
-    if (!pix.isNull()) {
-        m_cache->put(absPath, pix);
-        m_imageView->setPixmap(pix);
-    }
+    displayFile(absPath);
 
     m_currentFile = absPath;
 
@@ -129,9 +150,11 @@ void MainWindow::onPreviousImage()
 
 void MainWindow::onImageLoaded(const QString& filePath, const QPixmap& pixmap)
 {
+    if (isSvgFile(filePath))
+        return;
+
     m_cache->put(filePath, pixmap);
 
-    // If this is the currently displayed file, show it
     if (filePath == m_currentFile) {
         m_imageView->setPixmap(pixmap);
     }
@@ -150,23 +173,7 @@ void MainWindow::loadCurrentImage()
         return;
 
     m_currentFile = file;
-
-    // Try cache first
-    QPixmap cached = m_cache->get(file);
-    if (!cached.isNull()) {
-        m_imageView->setPixmap(cached);
-        updateWindowTitle();
-        preloadNeighbors();
-        return;
-    }
-
-    // Cache miss: load synchronously for immediate display
-    QPixmap pix = m_loader->loadSync(file);
-    if (!pix.isNull()) {
-        m_cache->put(file, pix);
-        m_imageView->setPixmap(pix);
-    }
-
+    displayFile(file);
     updateWindowTitle();
     preloadNeighbors();
 }
@@ -190,6 +197,21 @@ void MainWindow::preloadNeighbors()
 
         m_loader->loadAsync(file);
     }
+}
+
+void MainWindow::keyPressEvent(QKeyEvent* event)
+{
+    if (event->key() == Qt::Key_F1) {
+        showChangelog();
+        return;
+    }
+    QWidget::keyPressEvent(event);
+}
+
+void MainWindow::showChangelog()
+{
+    ChangelogDialog dlg(this);
+    dlg.exec();
 }
 
 void MainWindow::updateWindowTitle()

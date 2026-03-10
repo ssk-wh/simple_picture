@@ -1,11 +1,14 @@
 #include "ui/MainWindow.h"
+#include "version.h"
 #include <QApplication>
+#include <QIcon>
 
 int main(int argc, char* argv[])
 {
     QApplication app(argc, argv);
     app.setApplicationName("EasyPicture");
-    app.setApplicationVersion("1.0.0");
+    app.setApplicationVersion(EASYPIC_VERSION);
+    app.setWindowIcon(QIcon(QStringLiteral(":/resources/app-icon.svg")));
 
     easypic::MainWindow window;
     window.resize(1024, 768);

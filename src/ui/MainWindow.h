@@ -22,6 +22,7 @@ public:
 protected:
     void dragEnterEvent(QDragEnterEvent* event) override;
     void dropEvent(QDropEvent* event) override;
+    void keyPressEvent(QKeyEvent* event) override;
     void paintEvent(QPaintEvent* event) override;
 
 private slots:
@@ -33,9 +34,11 @@ private slots:
 private:
     void setupUI();
     void connectSignals();
+    void displayFile(const QString& filePath);
     void loadCurrentImage();
     void preloadNeighbors();
     void updateWindowTitle();
+    void showChangelog();
 
     ImageView* m_imageView = nullptr;
     std::unique_ptr<ImageLoader> m_loader;
