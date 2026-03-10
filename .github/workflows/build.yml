@@ -31,6 +31,7 @@ jobs:
             mingw-w64-x86_64-qt5-svg
             mingw-w64-x86_64-qt5-imageformats
             mingw-w64-x86_64-nsis
+            zip
 
       - name: Build
         run: |
@@ -94,8 +95,8 @@ jobs:
 
       - name: Create portable zip
         run: |
-          cd installer
-          7z a -tzip "EasyPicture-${VERSION}-Portable.zip" ./dist/*
+          cd installer/dist
+          zip -r "../EasyPicture-${VERSION}-Portable.zip" .
 
       - name: Upload portable
         uses: actions/upload-artifact@v4
