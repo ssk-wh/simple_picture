@@ -160,7 +160,11 @@ void ImageView::wheelEvent(QWheelEvent* event)
         return;
     }
 
+#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
     const QPointF mousePos = event->position();
+#else
+    const QPointF mousePos = event->posF();
+#endif
     const double oldScale = m_scale;
 
     // Zoom in or out
