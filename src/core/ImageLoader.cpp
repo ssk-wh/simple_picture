@@ -3,6 +3,7 @@
 #include <QFileInfo>
 #include <QFutureWatcher>
 #include <QImage>
+#include <QImageReader>
 #include <QPainter>
 #include <QSvgRenderer>
 #include <QtConcurrent>
@@ -39,7 +40,15 @@ static QImage loadImage(const QString& filePath)
         renderer.render(&painter);
         return image;
     }
-    return QImage(filePath);
+    QImage image(filePath);
+    if (image.isNull()) {
+        // Fallback: detect format from file content instead of extension
+        // (handles cases like PNG files saved with .jpg extension)
+        QImageReader reader(filePath);
+        reader.setDecideFormatFromContent(true);
+        image = reader.read();
+    }
+    return image;
 }
 
 QPixmap ImageLoader::loadSync(const QString& filePath)
