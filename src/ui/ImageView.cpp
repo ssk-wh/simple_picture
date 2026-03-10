@@ -96,7 +96,8 @@ void ImageView::fitToWindow()
 
     const double scaleX = widgetW / pixmapW;
     const double scaleY = widgetH / pixmapH;
-    m_scale = std::min(scaleX, scaleY);
+    // Use original size (1:1), only shrink if image exceeds window
+    m_scale = std::min({1.0, scaleX, scaleY});
     m_scale = std::clamp(m_scale, kMinScale, kMaxScale);
 
     // Center the image
