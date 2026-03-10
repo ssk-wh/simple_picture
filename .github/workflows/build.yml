@@ -96,7 +96,7 @@ jobs:
       - name: Upload installer
         uses: actions/upload-artifact@v4
         with:
-          name: EasyPicture-${{ env.VERSION }}-Setup.exe
+          name: EasyPicture-${{ env.VERSION }}-Setup.zip
           path: installer/EasyPicture-*-Setup.exe
 
       - name: Create portable zip
@@ -144,7 +144,7 @@ jobs:
       - name: Upload deb
         uses: actions/upload-artifact@v4
         with:
-          name: easypicture_${{ env.VERSION }}-1_amd64.deb
+          name: easypicture_${{ env.VERSION }}-1_amd64.zip
           path: easypicture_*_amd64.deb
 
   release:
