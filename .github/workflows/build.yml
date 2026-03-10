@@ -90,7 +90,7 @@ jobs:
       - name: Upload installer
         uses: actions/upload-artifact@v4
         with:
-          name: EasyPicture-${{ env.VERSION }}-Setup
+          name: EasyPicture-${{ env.VERSION }}-Setup.exe
           path: installer/EasyPicture-*-Setup.exe
 
       - name: Create portable zip
@@ -101,7 +101,7 @@ jobs:
       - name: Upload portable
         uses: actions/upload-artifact@v4
         with:
-          name: EasyPicture-${{ env.VERSION }}-Portable
+          name: EasyPicture-${{ env.VERSION }}-Portable.zip
           path: installer/EasyPicture-*-Portable.zip
 
   release:
