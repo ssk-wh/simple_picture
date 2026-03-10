@@ -155,7 +155,11 @@ void ChangelogDialog::setupUI()
 
     QFile file(QStringLiteral(":/CHANGELOG.md"));
     if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0)
         m_textEdit->setMarkdown(QString::fromUtf8(file.readAll()));
+#else
+        m_textEdit->setPlainText(QString::fromUtf8(file.readAll()));
+#endif
     }
 
     layout->addWidget(m_textEdit, 1);

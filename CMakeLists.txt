@@ -12,8 +12,8 @@ configure_file(
     ${CMAKE_CURRENT_BINARY_DIR}/version.h
 )
 
-# Qt 5.15.2
-find_package(Qt5 5.15 REQUIRED COMPONENTS Core Gui Widgets Concurrent Svg Test)
+# Qt 5.11+
+find_package(Qt5 5.11 REQUIRED COMPONENTS Core Gui Widgets Concurrent Svg Test)
 
 # 主程序源文件
 set(CORE_SOURCES
@@ -40,15 +40,22 @@ set(UI_HEADERS
     src/ui/ChangelogDialog.h
 )
 
-add_executable(EasyPicture WIN32
+set(APP_SOURCES
     src/main.cpp
     ${CORE_SOURCES}
     ${CORE_HEADERS}
     ${UI_SOURCES}
     ${UI_HEADERS}
     resources.qrc
-    resources/app.rc
 )
+
+if(WIN32)
+    list(APPEND APP_SOURCES resources/app.rc)
+    add_executable(EasyPicture WIN32 ${APP_SOURCES})
+else()
+    add_executable(EasyPicture ${APP_SOURCES})
+    install(TARGETS EasyPicture DESTINATION /usr/bin)
+endif()
 
 target_include_directories(EasyPicture PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src
