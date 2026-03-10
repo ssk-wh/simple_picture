@@ -40,3 +40,6 @@ temp/
 # 日志
 *.log
 logs/
+
+# 其他
+*.stackdump

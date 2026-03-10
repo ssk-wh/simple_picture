@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/">
+        <file>CHANGELOG.md</file>
+        <file>resources/app-icon.svg</file>
+    </qresource>
+</RCC>
