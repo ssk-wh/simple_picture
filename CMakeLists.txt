@@ -55,6 +55,8 @@ if(WIN32)
 else()
     add_executable(EasyPicture ${APP_SOURCES})
     install(TARGETS EasyPicture DESTINATION /usr/bin)
+    install(FILES resources/easypicture.desktop DESTINATION /usr/share/applications)
+    install(FILES resources/app-icon.svg DESTINATION /usr/share/icons/hicolor/scalable/apps RENAME easypicture.svg)
 endif()
 
 target_include_directories(EasyPicture PRIVATE

@@ -1,10 +1,14 @@
 #include "ImageView.h"
 
+#include <QDragEnterEvent>
+#include <QDropEvent>
 #include <QKeyEvent>
+#include <QMimeData>
 #include <QMouseEvent>
 #include <QPainter>
 #include <QResizeEvent>
 #include <QSvgRenderer>
+#include <QUrl>
 #include <QWheelEvent>
 
 #include <algorithm>
@@ -17,6 +21,7 @@ ImageView::ImageView(QWidget* parent)
 {
     setFocusPolicy(Qt::StrongFocus);
     setMouseTracking(true);
+    setAcceptDrops(true);
 }
 
 ImageView::~ImageView() = default;
@@ -295,6 +300,29 @@ void ImageView::clampOffset()
         const double minY = widgetH - scaledH - visibleMin;
         const double maxY = visibleMin;
         m_offset.setY(std::clamp(m_offset.y(), minY, maxY));
+    }
+}
+
+void ImageView::dragEnterEvent(QDragEnterEvent* event)
+{
+    if (event->mimeData()->hasUrls()) {
+        for (const auto& url : event->mimeData()->urls()) {
+            if (url.isLocalFile()) {
+                event->acceptProposedAction();
+                return;
+            }
+        }
+    }
+}
+
+void ImageView::dropEvent(QDropEvent* event)
+{
+    for (const auto& url : event->mimeData()->urls()) {
+        if (url.isLocalFile()) {
+            emit fileDropped(url.toLocalFile());
+            event->acceptProposedAction();
+            return;
+        }
     }
 }
 

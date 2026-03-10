@@ -1,5 +1,6 @@
 #pragma once
 
+#include <QMimeData>
 #include <QPixmap>
 #include <QPointF>
 #include <QWidget>
@@ -32,6 +33,7 @@ public:
 signals:
     void nextImageRequested();
     void previousImageRequested();
+    void fileDropped(const QString& filePath);
 
 protected:
     void paintEvent(QPaintEvent* event) override;
@@ -42,6 +44,8 @@ protected:
     void mouseDoubleClickEvent(QMouseEvent* event) override;
     void keyPressEvent(QKeyEvent* event) override;
     void resizeEvent(QResizeEvent* event) override;
+    void dragEnterEvent(QDragEnterEvent* event) override;
+    void dropEvent(QDropEvent* event) override;
 
 private:
     void clampOffset();

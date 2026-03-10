@@ -20,8 +20,6 @@ public:
     void openFile(const QString& filePath);
 
 protected:
-    void dragEnterEvent(QDragEnterEvent* event) override;
-    void dropEvent(QDropEvent* event) override;
     void keyPressEvent(QKeyEvent* event) override;
     void paintEvent(QPaintEvent* event) override;
 

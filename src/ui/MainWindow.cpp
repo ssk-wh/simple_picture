@@ -6,14 +6,10 @@
 
 #include "ChangelogDialog.h"
 
-#include <QDragEnterEvent>
-#include <QDropEvent>
 #include <QFileInfo>
 #include <QKeyEvent>
-#include <QMimeData>
 #include <QPainter>
 #include <QTimer>
-#include <QUrl>
 #include <QVBoxLayout>
 
 namespace easypic {
@@ -35,8 +31,6 @@ void MainWindow::setupUI()
     setWindowTitle(QStringLiteral("EasyPicture"));
     setMinimumSize(640, 480);
     resize(1024, 768);
-
-    setAcceptDrops(true);
 
     m_imageView = new ImageView(this);
 
@@ -64,6 +58,9 @@ void MainWindow::connectSignals()
 
     connect(m_navigator.get(), &ImageNavigator::currentFileChanged,
             this, &MainWindow::onCurrentFileChanged);
+
+    connect(m_imageView, &ImageView::fileDropped,
+            this, &MainWindow::openFile);
 }
 
 static bool isSvgFile(const QString& path)
@@ -107,31 +104,6 @@ void MainWindow::openFile(const QString& filePath)
         updateWindowTitle();
         preloadNeighbors();
     });
-}
-
-void MainWindow::dragEnterEvent(QDragEnterEvent* event)
-{
-    if (event->mimeData()->hasUrls()) {
-        const auto urls = event->mimeData()->urls();
-        for (const auto& url : urls) {
-            if (url.isLocalFile()) {
-                event->acceptProposedAction();
-                return;
-            }
-        }
-    }
-}
-
-void MainWindow::dropEvent(QDropEvent* event)
-{
-    const auto urls = event->mimeData()->urls();
-    for (const auto& url : urls) {
-        if (url.isLocalFile()) {
-            openFile(url.toLocalFile());
-            event->acceptProposedAction();
-            return;
-        }
-    }
 }
 
 void MainWindow::onNextImage()
