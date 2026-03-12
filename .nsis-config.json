@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "nsiScript": "installer/EasyPicture.nsi",
   "build": {
-    "command": "cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=OFF && cmake --build build --config Release",
+    "command": "export PATH=/c/msys64/mingw64/bin:$PATH && cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=OFF && cmake --build build --config Release",
     "outputDir": "build",
     "exe": "EasyPicture.exe"
   },

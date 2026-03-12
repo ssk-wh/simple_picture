@@ -9,6 +9,13 @@
 - CMake 3.16+
 - Google Test (单元测试)
 
+## 本地构建 (Windows/MSYS2)
+- 工具链：MSYS2 MinGW64 (g++ 15.1.0, Ninja, CMake)
+- **关键**：必须先设置 PATH 包含 MinGW64 bin 目录，否则 cc1plus 找不到 libmpfr-6.dll
+- 编译命令：`export PATH=/c/msys64/mingw64/bin:$PATH && cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=OFF && cmake --build build --config Release`
+- Qt 插件路径：`/c/msys64/mingw64/share/qt5/plugins/`
+- 打包：`/nsis-pack` 或 `bash installer/build_installer.sh`
+
 ## 架构约束
 - **禁止使用 .ui 文件**：所有界面用 C++ 类直接实现
 - **禁止使用 stylesheet**：通过重写 paintEvent 实现自定义绘制

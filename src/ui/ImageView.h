@@ -3,6 +3,7 @@
 #include <QMimeData>
 #include <QPixmap>
 #include <QPointF>
+#include <QTimer>
 #include <QWidget>
 #include <memory>
 
@@ -49,8 +50,15 @@ protected:
 
 private:
     void clampOffset();
+    void updateSvgCache();
 
     QPixmap m_pixmap;
+    QPixmap m_svgOverview;       // small full-SVG pixmap for zoom animation
+    QPixmap m_svgPixmapCache;    // viewport-sized cache for crisp display
+    double m_svgCacheScale = 0.0;
+    QPointF m_svgCacheOffset;
+    QSize m_svgCacheViewport;
+    QTimer m_svgCacheTimer;
     std::unique_ptr<QSvgRenderer> m_svgRenderer;
     QSizeF m_svgDefaultSize;
     double m_scale = 1.0;
