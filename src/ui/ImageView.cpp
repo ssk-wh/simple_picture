@@ -302,6 +302,10 @@ void ImageView::mouseDoubleClickEvent(QMouseEvent* event)
 void ImageView::keyPressEvent(QKeyEvent* event)
 {
     switch (event->key()) {
+    case Qt::Key_Escape:
+        window()->close();
+        event->accept();
+        break;
     case Qt::Key_Right:
         emit nextImageRequested();
         event->accept();
