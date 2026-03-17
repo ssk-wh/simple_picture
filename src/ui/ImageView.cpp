@@ -7,6 +7,7 @@
 #include <QMouseEvent>
 #include <QPainter>
 #include <QResizeEvent>
+#include <QSettings>
 #include <QSvgRenderer>
 #include <QUrl>
 #include <QWheelEvent>
@@ -25,6 +26,9 @@ ImageView::ImageView(QWidget* parent)
 
     m_svgCacheTimer.setSingleShot(true);
     connect(&m_svgCacheTimer, &QTimer::timeout, this, &ImageView::updateSvgCache);
+
+    QSettings settings(QStringLiteral("EasyPicture"), QStringLiteral("EasyPicture"));
+    m_showInfo = settings.value(QStringLiteral("showImageInfo"), false).toBool();
 }
 
 ImageView::~ImageView() = default;
@@ -35,10 +39,23 @@ void ImageView::setPixmap(const QPixmap& pixmap)
     m_svgRenderer.reset();
     m_svgOverview = QPixmap();
     m_svgPixmapCache = QPixmap();
+    m_errorMessage.clear();
     m_pixmap = pixmap;
     m_dragging = false;
     m_fittedToWindow = true;
     fitToWindow();
+    update();
+}
+
+void ImageView::setError(const QString& message)
+{
+    m_svgCacheTimer.stop();
+    m_svgRenderer.reset();
+    m_svgOverview = QPixmap();
+    m_svgPixmapCache = QPixmap();
+    m_pixmap = QPixmap();
+    m_dragging = false;
+    m_errorMessage = message;
     update();
 }
 
@@ -49,6 +66,7 @@ void ImageView::setSvg(const QString& filePath)
     if (!renderer->isValid())
         return;
 
+    m_errorMessage.clear();
     m_svgRenderer = std::move(renderer);
     m_svgDefaultSize = m_svgRenderer->defaultSize();
     if (m_svgDefaultSize.isEmpty())
@@ -77,6 +95,13 @@ void ImageView::setSvg(const QString& filePath)
     fitToWindow();
     updateSvgCache();
     update();
+}
+
+void ImageView::setImageInfo(const ImageInfo& info)
+{
+    m_imageInfo = info;
+    if (m_showInfo)
+        update();
 }
 
 const QPixmap& ImageView::pixmap() const
@@ -158,13 +183,16 @@ void ImageView::paintEvent(QPaintEvent* /*event*/)
     painter.fillRect(rect(), m_backgroundColor);
 
     if (m_pixmap.isNull()) {
-        // Draw placeholder text
         QFont font = painter.font();
         font.setPointSize(14);
         painter.setFont(font);
         painter.setPen(QColor(140, 140, 140));
-        painter.drawText(rect(), Qt::AlignCenter,
-                         QStringLiteral("Drag an image here or open via command line"));
+        if (m_errorMessage.isEmpty()) {
+            painter.drawText(rect(), Qt::AlignCenter,
+                             QStringLiteral("Drag an image here or open via command line"));
+        } else {
+            painter.drawText(rect(), Qt::AlignCenter, m_errorMessage);
+        }
         return;
     }
 
@@ -174,39 +202,30 @@ void ImageView::paintEvent(QPaintEvent* /*event*/)
     const QRectF targetRect(m_offset.x(), m_offset.y(), scaledW, scaledH);
 
     if (m_svgRenderer && !m_svgPixmapCache.isNull()
-        && m_svgCacheScale == m_scale
-        && m_svgCacheOffset == m_offset
-        && m_svgCacheViewport == size()) {
-        // Cache is fresh — draw pixel-perfect
-        painter.drawPixmap(QPointF(0, 0), m_svgPixmapCache);
+        && m_svgCacheScale == m_scale) {
+        // Full SVG cache at current scale — draw at offset (instant drag)
+        painter.drawPixmap(m_offset, m_svgPixmapCache);
     } else if (m_svgRenderer && !m_svgPixmapCache.isNull()
-               && m_svgCacheScale == m_scale
-               && m_svgCacheViewport == size()) {
-        // Only offset changed (dragging) — shift the hi-res cache, fill gaps with overview
-        const double dx = m_offset.x() - m_svgCacheOffset.x();
-        const double dy = m_offset.y() - m_svgCacheOffset.y();
-        if (!m_svgOverview.isNull())
-            painter.drawPixmap(targetRect, m_svgOverview, QRectF(m_svgOverview.rect()));
-        painter.drawPixmap(QPointF(dx, dy), m_svgPixmapCache);
+               && m_svgCacheScale > 0) {
+        // Scale changed — stretch old cache as placeholder
+        const double ratio = m_scale / m_svgCacheScale;
+        const double w = m_svgPixmapCache.width() * ratio;
+        const double h = m_svgPixmapCache.height() * ratio;
+        painter.drawPixmap(QRectF(m_offset.x(), m_offset.y(), w, h),
+                           m_svgPixmapCache,
+                           QRectF(m_svgPixmapCache.rect()));
     } else if (m_svgRenderer && !m_svgOverview.isNull()) {
-        // Scale or viewport changed — overview as base, then overlay transformed hi-res cache
+        // No cache yet — use overview
         painter.drawPixmap(targetRect, m_svgOverview, QRectF(m_svgOverview.rect()));
-        if (!m_svgPixmapCache.isNull() && m_svgCacheScale > 0) {
-            const double ratio = m_scale / m_svgCacheScale;
-            const double dx = (m_offset.x() - m_svgCacheOffset.x() * ratio);
-            const double dy = (m_offset.y() - m_svgCacheOffset.y() * ratio);
-            const double w = m_svgPixmapCache.width() * ratio;
-            const double h = m_svgPixmapCache.height() * ratio;
-            painter.drawPixmap(QRectF(dx, dy, w, h),
-                               m_svgPixmapCache,
-                               QRectF(m_svgPixmapCache.rect()));
-        }
     } else if (m_svgRenderer) {
         painter.setRenderHint(QPainter::Antialiasing);
         m_svgRenderer->render(&painter, targetRect);
     } else {
         painter.drawPixmap(targetRect, m_pixmap, QRectF(m_pixmap.rect()));
     }
+
+    if (m_showInfo)
+        drawInfoPanel(painter);
 }
 
 void ImageView::wheelEvent(QWheelEvent* event)
@@ -240,7 +259,7 @@ void ImageView::wheelEvent(QWheelEvent* event)
     clampOffset();
 
     if (m_svgRenderer)
-        m_svgCacheTimer.start(500);
+        m_svgCacheTimer.start(150);
 
     update();
     event->accept();
@@ -252,6 +271,12 @@ void ImageView::mousePressEvent(QMouseEvent* event)
         m_dragging = true;
         m_lastMousePos = event->pos();
         setCursor(Qt::ClosedHandCursor);
+        event->accept();
+    } else if (event->button() == Qt::RightButton) {
+        m_showInfo = !m_showInfo;
+        QSettings settings(QStringLiteral("EasyPicture"), QStringLiteral("EasyPicture"));
+        settings.setValue(QStringLiteral("showImageInfo"), m_showInfo);
+        update();
         event->accept();
     } else {
         QWidget::mousePressEvent(event);
@@ -265,9 +290,6 @@ void ImageView::mouseMoveEvent(QMouseEvent* event)
         m_offset += delta;
         m_lastMousePos = event->pos();
         clampOffset();
-
-        if (m_svgRenderer)
-            m_svgCacheTimer.start(500);
 
         update();
         event->accept();
@@ -328,8 +350,8 @@ void ImageView::resizeEvent(QResizeEvent* /*event*/)
         } else {
             clampOffset();
         }
-        if (m_svgRenderer)
-            m_svgCacheTimer.start(500);
+        if (m_svgRenderer && m_svgCacheScale != m_scale)
+            m_svgCacheTimer.start(150);
         update();
     }
 }
@@ -371,41 +393,19 @@ void ImageView::updateSvgCache()
     if (!m_svgRenderer)
         return;
 
-    const int vpW = width();
-    const int vpH = height();
-    if (vpW <= 0 || vpH <= 0)
+    // Skip if scale unchanged (offset changes don't need re-render)
+    if (m_svgCacheScale == m_scale)
         return;
 
-    // Skip if nothing changed
-    if (m_svgCacheScale == m_scale
-        && m_svgCacheOffset == m_offset
-        && m_svgCacheViewport == size()) {
-        return;
-    }
-
-    // The SVG image rect in widget coordinates
-    const double scaledW = m_svgDefaultSize.width() * m_scale;
-    const double scaledH = m_svgDefaultSize.height() * m_scale;
-    const QRectF imageRect(m_offset.x(), m_offset.y(), scaledW, scaledH);
-
-    // Visible portion = intersection of image rect and widget viewport
-    const QRectF viewport(0, 0, vpW, vpH);
-    const QRectF visibleRect = imageRect.intersected(viewport);
-    if (visibleRect.isEmpty()) {
-        m_svgPixmapCache = QPixmap();
-        return;
-    }
-
-    // Map visible rect back to SVG coordinates [0..1]
-    const double svgX1 = (visibleRect.left() - m_offset.x()) / scaledW;
-    const double svgY1 = (visibleRect.top() - m_offset.y()) / scaledH;
-    const double svgX2 = (visibleRect.right() - m_offset.x()) / scaledW;
-    const double svgY2 = (visibleRect.bottom() - m_offset.y()) / scaledH;
-
-    // Render the visible portion at screen resolution
-    const int cacheW = static_cast<int>(std::ceil(visibleRect.width()));
-    const int cacheH = static_cast<int>(std::ceil(visibleRect.height()));
+    // Render entire SVG at current scale
+    const int cacheW = static_cast<int>(std::ceil(m_svgDefaultSize.width() * m_scale));
+    const int cacheH = static_cast<int>(std::ceil(m_svgDefaultSize.height() * m_scale));
     if (cacheW <= 0 || cacheH <= 0)
+        return;
+
+    // Cap at 16384x16384 (~1GB) to prevent OOM at extreme zoom
+    constexpr int kMaxCacheDim = 16384;
+    if (cacheW > kMaxCacheDim || cacheH > kMaxCacheDim)
         return;
 
     m_svgPixmapCache = QPixmap(cacheW, cacheH);
@@ -413,25 +413,72 @@ void ImageView::updateSvgCache()
     {
         QPainter painter(&m_svgPixmapCache);
         painter.setRenderHint(QPainter::Antialiasing);
-
-        // Map SVG viewBox portion to the full cache pixmap
-        const QRectF svgSourceRect(
-            svgX1 * m_svgDefaultSize.width(),
-            svgY1 * m_svgDefaultSize.height(),
-            (svgX2 - svgX1) * m_svgDefaultSize.width(),
-            (svgY2 - svgY1) * m_svgDefaultSize.height());
-
-        m_svgRenderer->setViewBox(svgSourceRect);
         m_svgRenderer->render(&painter);
     }
 
-    // Restore full viewBox
-    m_svgRenderer->setViewBox(QRectF(QPointF(0, 0), m_svgDefaultSize));
-
     m_svgCacheScale = m_scale;
-    m_svgCacheOffset = m_offset;
-    m_svgCacheViewport = size();
     update();
+}
+
+static QString formatFileSize(qint64 bytes)
+{
+    if (bytes < 1024)
+        return QString::number(bytes) + QStringLiteral(" B");
+    if (bytes < 1024 * 1024)
+        return QString::number(bytes / 1024.0, 'f', 1) + QStringLiteral(" KB");
+    if (bytes < 1024LL * 1024 * 1024)
+        return QString::number(bytes / (1024.0 * 1024.0), 'f', 1) + QStringLiteral(" MB");
+    return QString::number(bytes / (1024.0 * 1024.0 * 1024.0), 'f', 2) + QStringLiteral(" GB");
+}
+
+void ImageView::drawInfoPanel(QPainter& painter)
+{
+    if (m_imageInfo.filePath.isEmpty())
+        return;
+
+    QStringList lines;
+    lines << m_imageInfo.filePath;
+    if (m_imageInfo.fileSize > 0)
+        lines << QStringLiteral("大小: %1").arg(formatFileSize(m_imageInfo.fileSize));
+    if (m_imageInfo.pixelWidth > 0 && m_imageInfo.pixelHeight > 0)
+        lines << QStringLiteral("像素: %1 × %2").arg(m_imageInfo.pixelWidth).arg(m_imageInfo.pixelHeight);
+    if (!m_imageInfo.format.isEmpty())
+        lines << QStringLiteral("格式: %1").arg(m_imageInfo.format);
+    if (m_imageInfo.bitDepth > 0)
+        lines << QStringLiteral("色深: %1 bit").arg(m_imageInfo.bitDepth);
+    if (!m_imageInfo.lastModified.isEmpty())
+        lines << QStringLiteral("修改: %1").arg(m_imageInfo.lastModified);
+    lines << QStringLiteral("缩放: %1%").arg(static_cast<int>(m_scale * 100));
+
+    QFont font = painter.font();
+    font.setPointSize(9);
+    painter.setFont(font);
+
+    const QFontMetrics fm(font);
+    const int lineHeight = fm.height() + 2;
+    const int padding = 8;
+
+    int maxWidth = 0;
+    for (const auto& line : lines)
+        maxWidth = std::max(maxWidth, fm.horizontalAdvance(line));
+
+    const int panelW = maxWidth + padding * 2;
+    const int panelH = lineHeight * lines.size() + padding * 2;
+    const int panelX = padding;
+    const int panelY = height() - panelH - padding;
+
+    // Semi-transparent background
+    painter.setPen(Qt::NoPen);
+    painter.setBrush(QColor(0, 0, 0, 180));
+    painter.drawRoundedRect(panelX, panelY, panelW, panelH, 4, 4);
+
+    // Text
+    painter.setPen(QColor(220, 220, 220));
+    int y = panelY + padding + fm.ascent();
+    for (const auto& line : lines) {
+        painter.drawText(panelX + padding, y, line);
+        y += lineHeight;
+    }
 }
 
 void ImageView::dragEnterEvent(QDragEnterEvent* event)

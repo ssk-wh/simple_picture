@@ -13,6 +13,7 @@
 - 工具链：MSYS2 MinGW64 (g++ 15.1.0, Ninja, CMake)
 - **关键**：必须先设置 PATH 包含 MinGW64 bin 目录，否则 cc1plus 找不到 libmpfr-6.dll
 - 编译命令：`export PATH=/c/msys64/mingw64/bin:$PATH && cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=OFF && cmake --build build --config Release`
+- 编译后复制到测试目录：`cp build/EasyPicture.exe installer/dist/`（如进程占用先 `taskkill //F //IM EasyPicture.exe`）
 - Qt 插件路径：`/c/msys64/mingw64/share/qt5/plugins/`
 - 打包：`/nsis-pack` 或 `bash installer/build_installer.sh`
 

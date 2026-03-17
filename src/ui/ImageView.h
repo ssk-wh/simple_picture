@@ -7,6 +7,16 @@
 #include <QWidget>
 #include <memory>
 
+struct ImageInfo {
+    QString filePath;
+    qint64 fileSize = 0;       // bytes
+    int pixelWidth = 0;
+    int pixelHeight = 0;
+    int bitDepth = 0;
+    QString format;
+    QString lastModified;
+};
+
 class QSvgRenderer;
 
 namespace easypic {
@@ -24,6 +34,8 @@ public:
 
     void setPixmap(const QPixmap& pixmap);
     void setSvg(const QString& filePath);
+    void setError(const QString& message);
+    void setImageInfo(const ImageInfo& info);
     const QPixmap& pixmap() const;
 
     double scale() const;
@@ -51,13 +63,15 @@ protected:
 private:
     void clampOffset();
     void updateSvgCache();
+    void drawInfoPanel(QPainter& painter);
+
+    ImageInfo m_imageInfo;
+    bool m_showInfo = false;
 
     QPixmap m_pixmap;
     QPixmap m_svgOverview;       // small full-SVG pixmap for zoom animation
-    QPixmap m_svgPixmapCache;    // viewport-sized cache for crisp display
+    QPixmap m_svgPixmapCache;    // full SVG rendered at current scale
     double m_svgCacheScale = 0.0;
-    QPointF m_svgCacheOffset;
-    QSize m_svgCacheViewport;
     QTimer m_svgCacheTimer;
     std::unique_ptr<QSvgRenderer> m_svgRenderer;
     QSizeF m_svgDefaultSize;
@@ -66,6 +80,7 @@ private:
     QPointF m_lastMousePos;
     bool m_dragging = false;
     bool m_fittedToWindow = true;  // Track whether we're in fit-to-window mode
+    QString m_errorMessage;
     QColor m_backgroundColor{30, 30, 30};
 };
 

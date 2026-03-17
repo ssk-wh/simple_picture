@@ -6,7 +6,9 @@
 
 #include "ChangelogDialog.h"
 
+#include <QDateTime>
 #include <QFileInfo>
+#include <QImageReader>
 #include <QKeyEvent>
 #include <QPainter>
 #include <QTimer>
@@ -68,22 +70,58 @@ static bool isSvgFile(const QString& path)
     return path.endsWith(QLatin1String(".svg"), Qt::CaseInsensitive);
 }
 
+static ImageInfo buildImageInfo(const QString& filePath)
+{
+    ImageInfo info;
+    QFileInfo fi(filePath);
+    info.filePath = fi.absoluteFilePath();
+    info.fileSize = fi.size();
+    info.lastModified = fi.lastModified().toString(QStringLiteral("yyyy-MM-dd HH:mm:ss"));
+
+    QImageReader reader(filePath);
+    reader.setDecideFormatFromContent(true);
+    const QSize imgSize = reader.size();
+    if (imgSize.isValid()) {
+        info.pixelWidth = imgSize.width();
+        info.pixelHeight = imgSize.height();
+    }
+    info.format = QString::fromLatin1(reader.format()).toUpper();
+    if (info.format.isEmpty())
+        info.format = fi.suffix().toUpper();
+
+    // Try to get bit depth from image
+    const QImage::Format fmt = reader.imageFormat();
+    if (fmt != QImage::Format_Invalid)
+        info.bitDepth = QImage::toPixelFormat(fmt).bitsPerPixel();
+
+    return info;
+}
+
 void MainWindow::displayFile(const QString& filePath)
 {
     if (isSvgFile(filePath)) {
         m_imageView->setSvg(filePath);
+        if (m_imageView->pixmap().isNull() && !filePath.isEmpty()) {
+            m_imageView->setError(QStringLiteral("无法打开图片: SVG"));
+        }
     } else {
         QPixmap cached = m_cache->get(filePath);
         if (!cached.isNull()) {
             m_imageView->setPixmap(cached);
-            return;
-        }
-        QPixmap pix = m_loader->loadSync(filePath);
-        if (!pix.isNull()) {
-            m_cache->put(filePath, pix);
-            m_imageView->setPixmap(pix);
+        } else {
+            QPixmap pix = m_loader->loadSync(filePath);
+            if (!pix.isNull()) {
+                m_cache->put(filePath, pix);
+                m_imageView->setPixmap(pix);
+            } else {
+                const QString suffix = QFileInfo(filePath).suffix().toUpper();
+                m_imageView->setError(
+                    QStringLiteral("无法打开图片: %1").arg(suffix.isEmpty() ? filePath : suffix));
+            }
         }
     }
+
+    m_imageView->setImageInfo(buildImageInfo(filePath));
 }
 
 void MainWindow::openFile(const QString& filePath)
