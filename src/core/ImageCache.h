@@ -6,7 +6,7 @@
 #include <list>
 #include <unordered_map>
 
-namespace easypic {
+namespace simplepic {
 
 class ImageCache {
 public:
@@ -52,4 +52,4 @@ private:
     mutable QMutex m_mutex;
 };
 
-} // namespace easypic
+} // namespace simplepic

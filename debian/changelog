@@ -1,8 +1,8 @@
-easypicture (1.0.0-1) unstable; urgency=medium
+simplepicture (1.0.0-1) unstable; urgency=medium
 
   * Initial release.
   * Support PNG, JPG, BMP, GIF, WEBP, TIFF, ICO, SVG formats.
   * Mouse wheel zoom and keyboard navigation.
   * SVG vector rendering with lossless zoom.
 
- -- EasyPicture Developers <dev@easypicture.org>  Tue, 04 Mar 2026 00:00:00 +0800
+ -- SimplePicture Developers <dev@simplepicture.org>  Tue, 04 Mar 2026 00:00:00 +0800

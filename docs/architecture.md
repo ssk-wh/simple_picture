@@ -1,4 +1,4 @@
-# EasyPicture 架构设计文档
+# SimplePicture 架构设计文档
 
 ## 1. 整体架构
 
@@ -37,7 +37,7 @@
 
 ### 命名空间
 
-所有类位于 `easypic` 命名空间下。
+所有类位于 `simplepic` 命名空间下。
 
 ---
 
@@ -162,7 +162,7 @@ main() 启动流程（目标 < 200ms）：
 | 复杂度 | 简单直接，代码量少 | 对单图片场景过度设计 |
 | 性能 | 单图片场景下更优 | 适合多图形对象场景 |
 
-**结论**：EasyPicture 是单图片查看器，`QGraphicsView` 的 scene graph 架构完全多余。`QWidget` + `QPainter` 足够满足缩放/平移/绘制需求，启动更快，内存更小。
+**结论**：SimplePicture 是单图片查看器，`QGraphicsView` 的 scene graph 架构完全多余。`QWidget` + `QPainter` 足够满足缩放/平移/绘制需求，启动更快，内存更小。
 
 ### 缩放实现细节
 
@@ -275,7 +275,7 @@ Value: QPixmap
 #include <QString>
 #include <functional>
 
-namespace easypic {
+namespace simplepic {
 
 class ImageLoader : public QObject {
     Q_OBJECT
@@ -305,7 +305,7 @@ private:
     std::unique_ptr<Impl> m_impl;
 };
 
-} // namespace easypic
+} // namespace simplepic
 ```
 
 ### 7.2 `src/core/image_cache.h`
@@ -319,7 +319,7 @@ private:
 #include <list>
 #include <unordered_map>
 
-namespace easypic {
+namespace simplepic {
 
 class ImageCache {
 public:
@@ -363,7 +363,7 @@ private:
     mutable QMutex m_mutex;
 };
 
-} // namespace easypic
+} // namespace simplepic
 ```
 
 ### 7.3 `src/core/image_navigator.h`
@@ -375,7 +375,7 @@ private:
 #include <QString>
 #include <QStringList>
 
-namespace easypic {
+namespace simplepic {
 
 class ImageNavigator : public QObject {
     Q_OBJECT
@@ -422,7 +422,7 @@ private:
     int m_currentIndex = -1;
 };
 
-} // namespace easypic
+} // namespace simplepic
 ```
 
 ### 7.4 `src/ui/image_view.h`
@@ -434,7 +434,7 @@ private:
 #include <QPointF>
 #include <QWidget>
 
-namespace easypic {
+namespace simplepic {
 
 class ImageView : public QWidget {
     Q_OBJECT
@@ -493,7 +493,7 @@ private:
     QColor m_backgroundColor{30, 30, 30};  // 深灰背景
 };
 
-} // namespace easypic
+} // namespace simplepic
 ```
 
 ### 7.5 `src/ui/main_window.h`
@@ -504,7 +504,7 @@ private:
 #include <QWidget>
 #include <memory>
 
-namespace easypic {
+namespace simplepic {
 
 class ImageView;
 class ImageLoader;
@@ -546,7 +546,7 @@ private:
     QString m_currentFile;
 };
 
-} // namespace easypic
+} // namespace simplepic
 ```
 
 ### 7.6 `src/main.cpp` 入口框架
@@ -557,9 +557,9 @@ private:
 
 int main(int argc, char* argv[]) {
     QApplication app(argc, argv);
-    app.setApplicationName("EasyPicture");
+    app.setApplicationName("SimplePicture");
 
-    easypic::MainWindow window;
+    simplepic::MainWindow window;
     window.resize(1024, 768);
     window.show();
 

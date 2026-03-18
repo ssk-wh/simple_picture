@@ -5,7 +5,7 @@
 class QLabel;
 class QTextEdit;
 
-namespace easypic {
+namespace simplepic {
 
 class CloseButton : public QWidget {
     Q_OBJECT
@@ -47,4 +47,4 @@ private:
     QTextEdit* m_textEdit = nullptr;
 };
 
-} // namespace easypic
+} // namespace simplepic

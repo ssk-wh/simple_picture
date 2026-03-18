@@ -10,7 +10,7 @@
 #include <QTextEdit>
 #include <QVBoxLayout>
 
-namespace easypic {
+namespace simplepic {
 
 // ============== CloseButton ==============
 
@@ -110,7 +110,7 @@ void ChangelogDialog::applyDarkPalette()
 
 void ChangelogDialog::setupUI()
 {
-    setWindowTitle(QStringLiteral("EasyPicture - 更新日志"));
+    setWindowTitle(QStringLiteral("SimplePicture - 更新日志"));
     resize(560, 440);
 
     auto* layout = new QVBoxLayout(this);
@@ -119,7 +119,7 @@ void ChangelogDialog::setupUI()
 
     // Title
     m_titleLabel = new QLabel(this);
-    m_titleLabel->setText(QStringLiteral("EasyPicture v%1").arg(EASYPIC_VERSION));
+    m_titleLabel->setText(QStringLiteral("SimplePicture v%1").arg(EASYPIC_VERSION));
     QFont titleFont = m_titleLabel->font();
     titleFont.setPixelSize(22);
     titleFont.setBold(true);
@@ -180,4 +180,4 @@ void ChangelogDialog::paintEvent(QPaintEvent* /*event*/)
     painter.fillRect(rect(), QColor(38, 38, 42));
 }
 
-} // namespace easypic
+} // namespace simplepic

@@ -1,8 +1,8 @@
 [Desktop Entry]
-Name=EasyPicture
+Name=SimplePicture
 Comment=Lightweight image viewer
-Exec=EasyPicture %f
-Icon=easypicture
+Exec=SimplePicture %f
+Icon=simplepicture
 Terminal=false
 Type=Application
 Categories=Graphics;Viewer;

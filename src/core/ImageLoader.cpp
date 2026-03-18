@@ -8,7 +8,7 @@
 #include <QSvgRenderer>
 #include <QtConcurrent>
 
-namespace easypic {
+namespace simplepic {
 
 struct ImageLoader::Impl {
     QList<QFutureWatcher<QImage>*> watchers;
@@ -112,4 +112,4 @@ QStringList ImageLoader::supportedFilters()
     };
 }
 
-} // namespace easypic
+} // namespace simplepic

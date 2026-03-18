@@ -5,7 +5,7 @@
 #include <QString>
 #include <memory>
 
-namespace easypic {
+namespace simplepic {
 
 class ImageLoader : public QObject {
     Q_OBJECT
@@ -35,4 +35,4 @@ private:
     std::unique_ptr<Impl> m_impl;
 };
 
-} // namespace easypic
+} // namespace simplepic

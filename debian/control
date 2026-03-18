@@ -1,15 +1,15 @@
-Source: easypicture
+Source: simplepicture
 Section: graphics
 Priority: optional
-Maintainer: EasyPicture Developers <dev@easypicture.org>
+Maintainer: SimplePicture Developers <dev@simplepicture.dev>
 Build-Depends: debhelper (>= 11),
                cmake (>= 3.16),
                qtbase5-dev,
                libqt5svg5-dev
 Standards-Version: 4.1.3
-Homepage: https://github.com/ssk-wh/easy_picture
+Homepage: https://github.com/ssk-wh/simple_picture
 
-Package: easypicture
+Package: simplepicture
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: Lightweight cross-platform image viewer

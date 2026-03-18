@@ -1,12 +1,12 @@
-# EasyPicture 测试方案
+# SimplePicture 测试方案
 
 ## 1. 功能测试用例矩阵
 
 | 编号 | 功能模块 | 测试用例 | 操作步骤 | 预期结果 |
 |------|----------|----------|----------|----------|
-| F-01 | 图片打开 | 通过命令行参数打开图片 | 执行 `easypicture test.png` | 窗口显示 test.png，标题栏显示文件名 |
+| F-01 | 图片打开 | 通过命令行参数打开图片 | 执行 `simplepicture test.png` | 窗口显示 test.png，标题栏显示文件名 |
 | F-02 | 图片打开 | 通过文件关联双击打开 | 双击 .png 文件 | 程序启动并显示该图片 |
-| F-03 | 图片打开 | 无参数启动 | 直接运行 easypicture | 显示空白窗口或欢迎界面，不崩溃 |
+| F-03 | 图片打开 | 无参数启动 | 直接运行 simplepicture | 显示空白窗口或欢迎界面，不崩溃 |
 | F-04 | 图片显示 | 小图居中显示 | 打开 100x100 的 PNG | 图片在窗口中央完整显示 |
 | F-05 | 图片显示 | 大图自适应缩放 | 打开 8000x6000 的 JPG | 图片缩放至窗口内完整可见 |
 | F-06 | 滚轮缩放 | 向上滚动放大 | 鼠标在图片上方向上滚轮 | 图片以鼠标位置为中心放大 |
@@ -137,7 +137,7 @@
 |--------|------|
 | 高 DPI 支持 | 在 150%/200% 缩放的 Windows 10/11 下图片清晰，UI 元素不模糊 |
 | 长路径支持 | 路径超过 MAX_PATH (260) 时的行为 |
-| 文件关联 | 双击图片文件能正确启动 EasyPicture |
+| 文件关联 | 双击图片文件能正确启动 SimplePicture |
 | 任务栏缩略图 | 任务栏预览缩略图正确显示当前图片 |
 | 暗色模式 | Windows 暗色主题下界面显示正常 |
 
@@ -167,7 +167,7 @@
 ```
 测试类: ImageLoaderTest
 依赖: Google Test
-命名空间: easypic::test
+命名空间: simplepic::test
 ```
 
 | 编号 | 测试用例 | 输入 | 预期输出 |
@@ -194,7 +194,7 @@
 ```
 测试类: ImageCacheTest
 依赖: Google Test
-命名空间: easypic::test
+命名空间: simplepic::test
 ```
 
 | 编号 | 测试用例 | 操作 | 预期结果 |
@@ -215,7 +215,7 @@
 ```
 测试类: ImageNavigatorTest
 依赖: Google Test
-命名空间: easypic::test
+命名空间: simplepic::test
 ```
 
 | 编号 | 测试用例 | 操作 | 预期结果 |
@@ -243,7 +243,7 @@
 #include <gtest/gtest.h>
 #include "core/image_loader.h"
 
-namespace easypic::test {
+namespace simplepic::test {
 
 class ImageLoaderTest : public ::testing::Test {
 protected:
@@ -290,7 +290,7 @@ TEST_F(ImageLoaderTest, SupportedFormats) {
     EXPECT_NE(std::find(formats.begin(), formats.end(), "ico"), formats.end());
 }
 
-} // namespace easypic::test
+} // namespace simplepic::test
 ```
 
 ```cpp
@@ -298,7 +298,7 @@ TEST_F(ImageLoaderTest, SupportedFormats) {
 #include <gtest/gtest.h>
 #include "core/image_cache.h"
 
-namespace easypic::test {
+namespace simplepic::test {
 
 class ImageCacheTest : public ::testing::Test {
 protected:
@@ -341,7 +341,7 @@ TEST_F(ImageCacheTest, CacheClear) {
     EXPECT_TRUE(m_cache->get("test.png").isNull());
 }
 
-} // namespace easypic::test
+} // namespace simplepic::test
 ```
 
 ```cpp
@@ -349,7 +349,7 @@ TEST_F(ImageCacheTest, CacheClear) {
 #include <gtest/gtest.h>
 #include "core/image_navigator.h"
 
-namespace easypic::test {
+namespace simplepic::test {
 
 class ImageNavigatorTest : public ::testing::Test {
 protected:
@@ -396,7 +396,7 @@ TEST_F(ImageNavigatorTest, SortOrder) {
     EXPECT_TRUE(std::is_sorted(files.begin(), files.end()));
 }
 
-} // namespace easypic::test
+} // namespace simplepic::test
 ```
 
 ## 附录: 测试数据准备

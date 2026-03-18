@@ -4,7 +4,7 @@
 #include <QString>
 #include <QStringList>
 
-namespace easypic {
+namespace simplepic {
 
 class ImageNavigator : public QObject {
     Q_OBJECT
@@ -46,4 +46,4 @@ private:
     int m_currentIndex = -1;
 };
 
-} // namespace easypic
+} // namespace simplepic

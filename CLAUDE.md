@@ -1,4 +1,4 @@
-# EasyPicture - 跨平台图片查看应用
+# SimplePicture - 跨平台图片查看应用
 
 ## 项目概述
 基于 Qt 5 的跨平台图片查看器，支持 Windows/Linux，追求极速启动。
@@ -13,7 +13,7 @@
 - 工具链：MSYS2 MinGW64 (g++ 15.1.0, Ninja, CMake)
 - **关键**：必须先设置 PATH 包含 MinGW64 bin 目录，否则 cc1plus 找不到 libmpfr-6.dll
 - 编译命令：`export PATH=/c/msys64/mingw64/bin:$PATH && cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=OFF && cmake --build build --config Release`
-- 编译后复制到测试目录：`cp build/EasyPicture.exe installer/dist/`（如进程占用先 `taskkill //F //IM EasyPicture.exe`）
+- 编译后复制到测试目录：`cp build/SimplePicture.exe installer/dist/`（如进程占用先 `taskkill //F //IM SimplePicture.exe`）
 - Qt 插件路径：`/c/msys64/mingw64/share/qt5/plugins/`
 - 打包：`/nsis-pack` 或 `bash installer/build_installer.sh`
 
@@ -37,7 +37,7 @@
 - 方法名: camelCase (如 loadImage)
 - 成员变量: m_ 前缀 (如 m_currentIndex)
 - 常量: k 前缀 + PascalCase (如 kMaxZoomLevel)
-- 命名空间: easypic
+- 命名空间: simplepic
 - 头文件保护: #pragma once
 - 使用 smart pointer，避免裸指针
 

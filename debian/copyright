@@ -1,9 +1,9 @@
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
-Upstream-Name: EasyPicture
-Source: https://github.com/ssk-wh/easy_picture
+Upstream-Name: SimplePicture
+Source: https://github.com/ssk-wh/simple_picture
 
 Files: *
-Copyright: 2026 EasyPicture Developers
+Copyright: 2026 SimplePicture Developers
 License: MIT
 
 License: MIT

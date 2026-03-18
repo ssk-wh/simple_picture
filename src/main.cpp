@@ -6,11 +6,11 @@
 int main(int argc, char* argv[])
 {
     QApplication app(argc, argv);
-    app.setApplicationName("EasyPicture");
+    app.setApplicationName("SimplePicture");
     app.setApplicationVersion(EASYPIC_VERSION);
     app.setWindowIcon(QIcon(QStringLiteral(":/resources/app-icon.svg")));
 
-    easypic::MainWindow window;
+    simplepic::MainWindow window;
     window.resize(1024, 768);
     window.show();
 

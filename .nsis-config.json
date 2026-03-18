@@ -1,17 +1,17 @@
 {
   "_desc": "Claude Code NSIS 打包 skill (/nsis-pack) 的项目配置文件",
-  "appName": "EasyPicture",
+  "appName": "SimplePicture",
   "version": "1.0.0",
-  "nsiScript": "installer/EasyPicture.nsi",
+  "nsiScript": "installer/SimplePicture.nsi",
   "build": {
     "command": "export PATH=/c/msys64/mingw64/bin:$PATH && cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=OFF && cmake --build build --config Release",
     "outputDir": "build",
-    "exe": "EasyPicture.exe"
+    "exe": "SimplePicture.exe"
   },
   "dist": {
     "dir": "installer/dist",
     "qtPlugins": ["platforms", "imageformats"],
     "extraFiles": []
   },
-  "output": "installer/EasyPicture-Setup.exe"
+  "output": "installer/SimplePicture-Setup.exe"
 }

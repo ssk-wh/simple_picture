@@ -4,7 +4,7 @@
 
 #include "core/ImageCache.h"
 
-using namespace easypic;
+using namespace simplepic;
 
 class ImageCacheTest : public ::testing::Test {
 protected:

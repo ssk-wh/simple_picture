@@ -14,7 +14,7 @@
 #include <QTimer>
 #include <QVBoxLayout>
 
-namespace easypic {
+namespace simplepic {
 
 MainWindow::MainWindow(QWidget* parent)
     : QWidget(parent)
@@ -30,7 +30,7 @@ MainWindow::~MainWindow() = default;
 
 void MainWindow::setupUI()
 {
-    setWindowTitle(QStringLiteral("EasyPicture"));
+    setWindowTitle(QStringLiteral("SimplePicture"));
     setMinimumSize(640, 480);
     resize(1024, 768);
 
@@ -230,15 +230,15 @@ void MainWindow::updateWindowTitle()
     const int total = m_navigator->totalCount();
 
     if (m_currentFile.isEmpty() || index < 0) {
-        setWindowTitle(QStringLiteral("EasyPicture"));
+        setWindowTitle(QStringLiteral("SimplePicture"));
         return;
     }
 
     const QString fileName = QFileInfo(m_currentFile).fileName();
-    setWindowTitle(QStringLiteral("EasyPicture - %1 [%2/%3]")
+    setWindowTitle(QStringLiteral("SimplePicture - %1 [%2/%3]")
                        .arg(fileName)
                        .arg(index + 1)
                        .arg(total));
 }
 
-} // namespace easypic
+} // namespace simplepic

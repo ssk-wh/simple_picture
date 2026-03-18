@@ -1,5 +1,5 @@
 #!/bin/bash
-# EasyPicture Installer Build Script
+# SimplePicture Installer Build Script
 # Usage: bash installer/build_installer.sh
 
 set -e
@@ -10,8 +10,8 @@ BUILD_DIR="$PROJECT_DIR/build"
 DIST_DIR="$SCRIPT_DIR/dist"
 
 # Extract version from CMakeLists.txt
-VERSION=$(grep -oP 'project\(EasyPicture VERSION \K[0-9.]+' "$PROJECT_DIR/CMakeLists.txt")
-echo "=== EasyPicture Installer Builder (v$VERSION) ==="
+VERSION=$(grep -oP 'project\(SimplePicture VERSION \K[0-9.]+' "$PROJECT_DIR/CMakeLists.txt")
+echo "=== SimplePicture Installer Builder (v$VERSION) ==="
 
 # Step 1: Build Release version
 echo "[1/3] Building Release version..."
@@ -25,11 +25,11 @@ rm -rf "$DIST_DIR"
 mkdir -p "$DIST_DIR/platforms" "$DIST_DIR/imageformats"
 
 # Copy exe
-cp "$BUILD_DIR/EasyPicture.exe" "$DIST_DIR/"
+cp "$BUILD_DIR/SimplePicture.exe" "$DIST_DIR/"
 
 # Copy DLLs - use ldd to find runtime dependencies
 echo "  Collecting DLLs..."
-ldd "$BUILD_DIR/EasyPicture.exe" | grep -i mingw64 | awk '{print $3}' | while read dll; do
+ldd "$BUILD_DIR/SimplePicture.exe" | grep -i mingw64 | awk '{print $3}' | while read dll; do
     cp "$dll" "$DIST_DIR/"
 done
 
@@ -47,9 +47,9 @@ echo "  $(find "$DIST_DIR" -type f \( -name "*.dll" -o -name "*.exe" \) | wc -l)
 # Step 3: Sync version to NSIS script and build installer
 echo "[3/3] Building installer..."
 cd "$SCRIPT_DIR"
-sed -i "s/!define APP_VERSION \".*\"/!define APP_VERSION \"$VERSION\"/" EasyPicture.nsi
-makensis EasyPicture.nsi
+sed -i "s/!define APP_VERSION \".*\"/!define APP_VERSION \"$VERSION\"/" SimplePicture.nsi
+makensis SimplePicture.nsi
 
 echo ""
 echo "=== Done! ==="
-echo "Installer: $SCRIPT_DIR/EasyPicture-$VERSION-Setup.exe"
+echo "Installer: $SCRIPT_DIR/SimplePicture-$VERSION-Setup.exe"

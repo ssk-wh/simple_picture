@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-project(EasyPicture VERSION 1.0.0 LANGUAGES CXX)
+project(SimplePicture VERSION 1.0.0 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -51,20 +51,20 @@ set(APP_SOURCES
 
 if(WIN32)
     list(APPEND APP_SOURCES resources/app.rc)
-    add_executable(EasyPicture WIN32 ${APP_SOURCES})
+    add_executable(SimplePicture WIN32 ${APP_SOURCES})
 else()
-    add_executable(EasyPicture ${APP_SOURCES})
-    install(TARGETS EasyPicture DESTINATION /usr/bin)
-    install(FILES resources/easypicture.desktop DESTINATION /usr/share/applications)
-    install(FILES resources/app-icon.svg DESTINATION /usr/share/icons/hicolor/scalable/apps RENAME easypicture.svg)
+    add_executable(SimplePicture ${APP_SOURCES})
+    install(TARGETS SimplePicture DESTINATION /usr/bin)
+    install(FILES resources/simplepicture.desktop DESTINATION /usr/share/applications)
+    install(FILES resources/app-icon.svg DESTINATION /usr/share/icons/hicolor/scalable/apps RENAME simplepicture.svg)
 endif()
 
-target_include_directories(EasyPicture PRIVATE
+target_include_directories(SimplePicture PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src
     ${CMAKE_CURRENT_BINARY_DIR}
 )
 
-target_link_libraries(EasyPicture PRIVATE
+target_link_libraries(SimplePicture PRIVATE
     Qt5::Core
     Qt5::Gui
     Qt5::Widgets
@@ -88,7 +88,7 @@ if(BUILD_TESTS)
         FetchContent_MakeAvailable(googletest)
     endif()
 
-    add_executable(EasyPictureTests
+    add_executable(SimplePictureTests
         tests/test_main.cpp
         tests/test_ImageLoader.cpp
         tests/test_ImageCache.cpp
@@ -97,11 +97,11 @@ if(BUILD_TESTS)
         ${CORE_HEADERS}
     )
 
-    target_include_directories(EasyPictureTests PRIVATE
+    target_include_directories(SimplePictureTests PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/src
     )
 
-    target_link_libraries(EasyPictureTests PRIVATE
+    target_link_libraries(SimplePictureTests PRIVATE
         Qt5::Core
         Qt5::Gui
         Qt5::Widgets
@@ -112,5 +112,5 @@ if(BUILD_TESTS)
     )
 
     include(GoogleTest)
-    gtest_discover_tests(EasyPictureTests)
+    gtest_discover_tests(SimplePictureTests)
 endif()

@@ -1,4 +1,4 @@
-# EasyPicture
+# SimplePicture
 
 轻量级跨平台图片查看器，基于 Qt 5，支持 Windows / Linux，追求极速启动体验。
 

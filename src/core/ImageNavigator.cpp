@@ -5,7 +5,7 @@
 #include <QDir>
 #include <QFileInfo>
 
-namespace easypic {
+namespace simplepic {
 
 ImageNavigator::ImageNavigator(QObject* parent)
     : QObject(parent)
@@ -127,4 +127,4 @@ void ImageNavigator::scanDirectory(const QString& dirPath)
     m_currentIndex = -1;
 }
 
-} // namespace easypic
+} // namespace simplepic

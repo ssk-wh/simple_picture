@@ -53,7 +53,7 @@ jobs:
           if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
             VERSION="${GITHUB_REF#refs/tags/v}"
           else
-            VERSION=$(grep -oP 'project\(EasyPicture VERSION \K[0-9.]+' CMakeLists.txt)
+            VERSION=$(grep -oP 'project\(SimplePicture VERSION \K[0-9.]+' CMakeLists.txt)
           fi
           if [[ -z "$VERSION" ]]; then
             echo "::error::Failed to extract version"
@@ -68,12 +68,12 @@ jobs:
           rm -rf installer/dist
           mkdir -p installer/dist/platforms installer/dist/imageformats
 
-          cp build/EasyPicture.exe installer/dist/
+          cp build/SimplePicture.exe installer/dist/
 
           # Collect MinGW runtime DLLs
           while IFS= read -r dll; do
             cp "$dll" installer/dist/
-          done < <(ldd build/EasyPicture.exe | grep -i mingw64 | awk '{print $3}')
+          done < <(ldd build/SimplePicture.exe | grep -i mingw64 | awk '{print $3}')
 
           # Qt platform plugin
           QT_PLUGIN_DIR=$(qmake -query QT_INSTALL_PLUGINS 2>/dev/null || echo "/mingw64/share/qt5/plugins")
@@ -90,25 +90,25 @@ jobs:
         run: |
           set -euo pipefail
           cd installer
-          sed -i "s/!define APP_VERSION \".*\"/!define APP_VERSION \"$VERSION\"/" EasyPicture.nsi
-          makensis EasyPicture.nsi
+          sed -i "s/!define APP_VERSION \".*\"/!define APP_VERSION \"$VERSION\"/" SimplePicture.nsi
+          makensis SimplePicture.nsi
 
       - name: Upload installer
         uses: actions/upload-artifact@v4
         with:
-          name: EasyPicture-${{ env.VERSION }}-Setup.zip
-          path: installer/EasyPicture-*-Setup.exe
+          name: SimplePicture-${{ env.VERSION }}-Setup.zip
+          path: installer/SimplePicture-*-Setup.exe
 
       - name: Create portable zip
         run: |
           cd installer/dist
-          zip -r "../EasyPicture-${VERSION}-Portable.zip" .
+          zip -r "../SimplePicture-${VERSION}-Portable.zip" .
 
       - name: Upload portable
         uses: actions/upload-artifact@v4
         with:
-          name: EasyPicture-${{ env.VERSION }}-Windows-Portable.zip
-          path: installer/EasyPicture-*-Portable.zip
+          name: SimplePicture-${{ env.VERSION }}-Windows-Portable.zip
+          path: installer/SimplePicture-*-Portable.zip
 
   build-linux:
     runs-on: ubuntu-latest
@@ -127,7 +127,7 @@ jobs:
           if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
             VERSION="${GITHUB_REF#refs/tags/v}"
           else
-            VERSION=$(grep -oP 'project\(EasyPicture VERSION \K[0-9.]+' CMakeLists.txt)
+            VERSION=$(grep -oP 'project\(SimplePicture VERSION \K[0-9.]+' CMakeLists.txt)
           fi
           if [[ -z "$VERSION" ]]; then
             echo "::error::Failed to extract version"
@@ -139,13 +139,13 @@ jobs:
       - name: Build deb package
         run: |
           dpkg-buildpackage -us -uc -b
-          cp ../easypicture_*_amd64.deb .
+          cp ../simplepicture_*_amd64.deb .
 
       - name: Upload deb
         uses: actions/upload-artifact@v4
         with:
-          name: easypicture_${{ env.VERSION }}-1_amd64.zip
-          path: easypicture_*_amd64.deb
+          name: simplepicture_${{ env.VERSION }}-1_amd64.zip
+          path: simplepicture_*_amd64.deb
 
   release:
     needs: [build-windows, build-linux]

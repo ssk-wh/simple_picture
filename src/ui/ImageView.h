@@ -19,7 +19,7 @@ struct ImageInfo {
 
 class QSvgRenderer;
 
-namespace easypic {
+namespace simplepic {
 
 class ImageView : public QWidget {
     Q_OBJECT
@@ -84,4 +84,4 @@ private:
     QColor m_backgroundColor{30, 30, 30};
 };
 
-} // namespace easypic
+} // namespace simplepic

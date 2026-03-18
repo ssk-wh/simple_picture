@@ -6,7 +6,7 @@
 
 #include "core/ImageNavigator.h"
 
-using namespace easypic;
+using namespace simplepic;
 
 class ImageNavigatorTest : public ::testing::Test {
 protected:

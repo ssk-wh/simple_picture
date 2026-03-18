@@ -1,16 +1,16 @@
-﻿; EasyPicture NSIS Installer Script
+﻿; SimplePicture NSIS Installer Script
 ; Generates a Windows installer with file association support
 
 !include "MUI2.nsh"
 !include "FileFunc.nsh"
 
 ; ============== Basic Info ==============
-!define APP_NAME "EasyPicture"
+!define APP_NAME "SimplePicture"
 !define APP_VERSION "1.0.0"
-!define APP_PUBLISHER "EasyPicture"
-!define APP_EXE "EasyPicture.exe"
+!define APP_PUBLISHER "SimplePicture"
+!define APP_EXE "SimplePicture.exe"
 !define UNINSTALL_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APP_NAME}"
-!define FILETYPE_KEY "EasyPicture.Image"
+!define FILETYPE_KEY "SimplePicture.Image"
 
 Name "${APP_NAME} ${APP_VERSION}"
 OutFile "${APP_NAME}-${APP_VERSION}-Setup.exe"
@@ -83,10 +83,10 @@ Section "主程序 (必需)" SecMain
     WriteRegStr HKCR "Applications\${APP_EXE}\SupportedTypes" ".svg" ""
 
     ; Register file type class
-    WriteRegStr HKCR "${FILETYPE_KEY}" "" "EasyPicture Image"
+    WriteRegStr HKCR "${FILETYPE_KEY}" "" "SimplePicture Image"
     WriteRegStr HKCR "${FILETYPE_KEY}\DefaultIcon" "" "$INSTDIR\${APP_EXE},0"
     WriteRegStr HKCR "${FILETYPE_KEY}\shell" "" "open"
-    WriteRegStr HKCR "${FILETYPE_KEY}\shell\open" "" "使用 EasyPicture 打开"
+    WriteRegStr HKCR "${FILETYPE_KEY}\shell\open" "" "使用 SimplePicture 打开"
     WriteRegStr HKCR "${FILETYPE_KEY}\shell\open\command" "" '"$INSTDIR\${APP_EXE}" "%1"'
 
     ; Register OpenWithProgids for each image extension (non-intrusive)
@@ -120,7 +120,7 @@ SectionEnd
 
 ; ============== Section Descriptions ==============
 !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
-    !insertmacro MUI_DESCRIPTION_TEXT ${SecMain} "安装 EasyPicture 主程序及所有必需文件"
+    !insertmacro MUI_DESCRIPTION_TEXT ${SecMain} "安装 SimplePicture 主程序及所有必需文件"
     !insertmacro MUI_DESCRIPTION_TEXT ${SecStartMenu} "在开始菜单创建快捷方式"
     !insertmacro MUI_DESCRIPTION_TEXT ${SecDesktop} "在桌面创建快捷方式"
 !insertmacro MUI_FUNCTION_DESCRIPTION_END

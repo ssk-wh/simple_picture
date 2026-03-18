@@ -3,7 +3,7 @@
 #include <QWidget>
 #include <memory>
 
-namespace easypic {
+namespace simplepic {
 
 class ImageView;
 class ImageLoader;
@@ -46,4 +46,4 @@ private:
     QString m_currentFile;
 };
 
-} // namespace easypic
+} // namespace simplepic

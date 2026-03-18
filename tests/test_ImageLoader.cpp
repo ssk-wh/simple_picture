@@ -7,7 +7,7 @@
 
 #include "core/ImageLoader.h"
 
-using namespace easypic;
+using namespace simplepic;
 
 class ImageLoaderTest : public ::testing::Test {
 protected:

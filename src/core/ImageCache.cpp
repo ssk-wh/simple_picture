@@ -2,7 +2,7 @@
 
 #include <QMutexLocker>
 
-namespace easypic {
+namespace simplepic {
 
 ImageCache::ImageCache(int capacity)
     : m_capacity(capacity)
@@ -83,4 +83,4 @@ void ImageCache::evict()
     m_cacheList.pop_back();
 }
 
-} // namespace easypic
+} // namespace simplepic

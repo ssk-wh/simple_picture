@@ -15,7 +15,7 @@
 #include <algorithm>
 #include <cmath>
 
-namespace easypic {
+namespace simplepic {
 
 ImageView::ImageView(QWidget* parent)
     : QWidget(parent)
@@ -27,7 +27,7 @@ ImageView::ImageView(QWidget* parent)
     m_svgCacheTimer.setSingleShot(true);
     connect(&m_svgCacheTimer, &QTimer::timeout, this, &ImageView::updateSvgCache);
 
-    QSettings settings(QStringLiteral("EasyPicture"), QStringLiteral("EasyPicture"));
+    QSettings settings(QStringLiteral("SimplePicture"), QStringLiteral("SimplePicture"));
     m_showInfo = settings.value(QStringLiteral("showImageInfo"), false).toBool();
 }
 
@@ -274,7 +274,7 @@ void ImageView::mousePressEvent(QMouseEvent* event)
         event->accept();
     } else if (event->button() == Qt::RightButton) {
         m_showInfo = !m_showInfo;
-        QSettings settings(QStringLiteral("EasyPicture"), QStringLiteral("EasyPicture"));
+        QSettings settings(QStringLiteral("SimplePicture"), QStringLiteral("SimplePicture"));
         settings.setValue(QStringLiteral("showImageInfo"), m_showInfo);
         update();
         event->accept();
@@ -504,4 +504,4 @@ void ImageView::dropEvent(QDropEvent* event)
     }
 }
 
-} // namespace easypic
+} // namespace simplepic
