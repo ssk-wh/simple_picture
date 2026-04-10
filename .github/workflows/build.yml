@@ -85,22 +85,39 @@ jobs:
           done
 
           # Collect indirect dependencies of all DLLs (including plugins)
-          find installer/dist -name "*.dll" | while read target; do
-            ldd "$target" 2>/dev/null | grep -i mingw64 | awk '{print $3}' | while read dll; do
-              [ -f "$dll" ] && cp -n "$dll" installer/dist/
-            done
+          # Loop until fixpoint to handle transitive dependencies
+          while :; do
+            added=0
+            while IFS= read -r target; do
+              while IFS= read -r dll; do
+                [ -n "$dll" ] || continue
+                name=$(basename "$dll")
+                if [ ! -f "installer/dist/$name" ]; then
+                  cp "$dll" "installer/dist/"
+                  added=1
+                fi
+              done < <(ldd "$target" 2>/dev/null | grep -i mingw64 | awk '{print $3}' || true)
+            done < <(find installer/dist -name "*.dll")
+            [ "$added" -eq 0 ] && break
           done
 
           echo "Collected $(find installer/dist -type f | wc -l) files"
 
           # Verify no missing dependencies
-          MISSING=""
-          for target in installer/dist/*.dll installer/dist/*.exe installer/dist/imageformats/*.dll installer/dist/platforms/*.dll; do
-            [ -f "$target" ] || continue
-            ldd "$target" 2>/dev/null | grep "not found" | while read line; do
-              echo "  $(basename "$target"): $line"
-            done
-          done | { MISSING=$(cat); if [ -n "$MISSING" ]; then echo "Missing dependencies:"; echo "$MISSING"; exit 1; else echo "All dependencies satisfied."; fi; }
+          missing_found=0
+          while IFS= read -r target; do
+            missing=$(ldd "$target" 2>/dev/null | grep "not found" || true)
+            if [ -n "$missing" ]; then
+              echo "  $(basename "$target"):"
+              echo "$missing"
+              missing_found=1
+            fi
+          done < <(find installer/dist -type f \( -name "*.dll" -o -name "*.exe" \))
+          if [ "$missing_found" -ne 0 ]; then
+            echo "ERROR: Missing dependencies detected"
+            exit 1
+          fi
+          echo "All dependencies satisfied."
 
       - name: Build NSIS installer
         run: |
