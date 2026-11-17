@@ -60,16 +60,29 @@ echo "  Collecting Qt plugins..."
 cp "$QT_PLUGIN_DIR/platforms/qwindows.dll" "$DIST_DIR/platforms/"
 for plugin in qgif qico qjpeg qsvg qwebp qtiff; do
     src="$QT_PLUGIN_DIR/imageformats/${plugin}.dll"
-    [ -f "$src" ] && cp "$src" "$DIST_DIR/imageformats/"
+    if [ ! -f "$src" ]; then
+        echo "ERROR: 缺少图片格式插件 $src（请安装 mingw-w64-x86_64-qt5-imageformats）"
+        exit 1
+    fi
+    cp "$src" "$DIST_DIR/imageformats/"
 done
 
 # Collect dependencies of ALL DLLs in dist (including plugins)
 # This ensures indirect dependencies like libjpeg-8.dll are not missed
 echo "  Collecting plugin dependencies..."
-find "$DIST_DIR" -name "*.dll" | while read target; do
-    ldd "$target" 2>/dev/null | grep -i mingw64 | awk '{print $3}' | while read dll; do
-        [ -f "$dll" ] && cp -n "$dll" "$DIST_DIR/"
-    done
+# 循环到不再新增 DLL 为止，处理传递依赖
+while :; do
+    added=0
+    while IFS= read -r target; do
+        while IFS= read -r dll; do
+            [ -n "$dll" ] && [ -f "$dll" ] || continue
+            if [ ! -f "$DIST_DIR/$(basename "$dll")" ]; then
+                cp "$dll" "$DIST_DIR/"
+                added=1
+            fi
+        done < <(ldd "$target" 2>/dev/null | grep -i mingw64 | awk '{print $3}' || true)
+    done < <(find "$DIST_DIR" -name "*.dll")
+    [ "$added" -eq 0 ] && break
 done
 
 echo "  $(find "$DIST_DIR" -type f \( -name "*.dll" -o -name "*.exe" \) | wc -l) files collected"
