@@ -81,7 +81,11 @@ jobs:
 
           # Qt imageformat plugins
           for fmt in qgif qico qjpeg qsvg qwebp qtiff; do
-            [ -f "$QT_PLUGIN_DIR/imageformats/${fmt}.dll" ] && cp "$QT_PLUGIN_DIR/imageformats/${fmt}.dll" installer/dist/imageformats/
+            if [ ! -f "$QT_PLUGIN_DIR/imageformats/${fmt}.dll" ]; then
+              echo "::error::缺少图片格式插件 ${fmt}.dll"
+              exit 1
+            fi
+            cp "$QT_PLUGIN_DIR/imageformats/${fmt}.dll" installer/dist/imageformats/
           done
 
           # Collect indirect dependencies of all DLLs (including plugins)
