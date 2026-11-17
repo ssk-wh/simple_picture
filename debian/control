@@ -11,7 +11,7 @@ Homepage: https://github.com/ssk-wh/simple_picture
 
 Package: simplepicture
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends}, libqt5svg5, qt5-image-formats-plugins
 Description: Lightweight cross-platform image viewer
  A fast and lightweight image viewer built with Qt 5.
  Supports PNG, JPG, BMP, GIF, WEBP, TIFF, ICO, SVG formats.
